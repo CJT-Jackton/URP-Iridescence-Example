@@ -53,7 +53,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             public static GUIContent enableIridescenceText = new GUIContent("Iridescence", "Enable Iridescence");
 
             public static GUIContent iridescenceThicknessText = new GUIContent("Thickness",
-                "Thickness of the thin-film remapping to 0nm - 1000nm.");
+                "Thickness of the thin-film. Unit is micrometer, mean 0.5 is 500nm.");
 
             public static GUIContent iridescenceEta2Text = new GUIContent("Thin-film IOR (η₂)",
                 "Index of refraction of the thin-film.");

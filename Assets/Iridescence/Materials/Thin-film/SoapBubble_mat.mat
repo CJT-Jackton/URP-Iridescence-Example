@@ -74,7 +74,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _IridescenceThickness: 0.68
+    - _IridescenceThickness: 0.52
     - _IridescneceEta_2: 1.36
     - _IridescneceEta_3: 1
     - _IridescneceKappa_3: 0

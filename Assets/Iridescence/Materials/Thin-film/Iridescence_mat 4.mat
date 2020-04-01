@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Iridescence_mat 2
+  m_Name: Iridescence_mat 4
   m_Shader: {fileID: 4800000, guid: 8f855a8618631ca4d9e8266e50c6267f, type: 3}
   m_ShaderKeywords: _IRIDESCENCE
   m_LightmapFlags: 4
@@ -73,15 +73,15 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _IridescenceThickness: 0.17
-    - _IridescneceEta_2: 2
-    - _IridescneceEta_3: 3
-    - _IridescneceKappa_3: 0.37
-    - _Metallic: 0.871
+    - _IridescenceThickness: 0.38
+    - _IridescneceEta_2: 1.33
+    - _IridescneceEta_3: 1
+    - _IridescneceKappa_3: 0
+    - _Metallic: 1
     - _OcclusionStrength: 0.03
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.926
+    - _Smoothness: 0.93
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -89,7 +89,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.2924528, g: 0.22441669, b: 0, a: 1}
+    - _BaseColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

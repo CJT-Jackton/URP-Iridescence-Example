@@ -11,10 +11,9 @@
 
 // Common constants
 #define PI 3.14159265358979323846
-//float PI = 3.14159265358979323846;
 
 // XYZ to CIE 1931 RGB color space (using neutral E illuminant)
-const float3x3 XYZ_TO_RGB = float3x3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
+static const half3x3 XYZ_TO_RGB = half3x3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
 
 // Square functions for cleaner code
 inline float sqr(float x) { return x * x; }
@@ -32,8 +31,8 @@ float3 evalSensitivity(float opd, float shift) {
     float3 val = float3(5.4856e-13, 4.4201e-13, 5.2481e-13);
     float3 pos = float3(1.6810e+06, 1.7953e+06, 2.2084e+06);
     float3 var = float3(4.3278e+09, 9.3046e+09, 6.6121e+09);
-    float3 xyz = val * sqrt(2 * PI * var) * cos(pos * phase + shift) * exp(-var * phase * phase);
-    xyz.x += 9.7470e-14 * sqrt(2 * PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift) * exp(-4.5282e+09 * phase * phase);
+    float3 xyz = val * sqrt(2.0 * PI * var) * cos(pos * phase + shift) * exp(-var * phase * phase);
+    xyz.x += 9.7470e-14 * sqrt(2.0 * PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift) * exp(-4.5282e+09 * phase * phase);
     return xyz / 1.0685e-7;
 }
 
@@ -170,17 +169,29 @@ void fresnelConductor(in float ct1, in float n1, in float n2, in float k,
     phi.x = atan2(sqr(sqr(n2) * (1 + sqr(k)) * ct1) - sqr(n1) * (sqr(U) + sqr(V)), 2 * n1 * sqr(n2) * ct1 * (2 * k * U - (1 - sqr(k)) * V));
 }
 
+half3 EnvironmentBRDFIridescence(BRDFDataAdvanced brdfData, half3 indirectDiffuse, half3 indirectSpecular, half3 fresnelIridescent)
+{
+    half3 c = indirectDiffuse * brdfData.diffuse;
+    float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
+    c += surfaceReduction * indirectSpecular * lerp(brdfData.specular * fresnelIridescent, brdfData.grazingTerm, fresnelIridescent);
+    return c;
+}
+
 #ifdef _IRIDESCENCE
 // Evaluate the reflectance for a thin-film layer on top of a dielectric medum
-half3 iridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, half3 lightDirectionWS)
+// Based on the paper [LAURENT 2017] A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence
+half3 Iridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, half3 lightDirectionWS)
 {
+    // iridescenceThickness unit is micrometer for this equation here. Mean 0.5 is 500nm.
     float Dinc = brdfData.iridescenceThickness;
-    float eta2 = brdfData.iridescenceEta_2;
-    float eta3 = brdfData.iridescenceEta_3;
-    float kappa3 = brdfData.iridescenceKappa_3;
 
-    // Force eta_2 -> 1.0 when Dinc -> 0.0
-    float eta_2 = lerp(1.0, eta2, smoothstep(0.0, 0.03, Dinc));
+    float eta_1 = 1.0; // Air on top, no coat.
+    float eta_2 = brdfData.iridescenceEta_2;
+    float eta_3 = brdfData.iridescenceEta_3;
+    float kappa_3 = brdfData.iridescenceKappa_3;
+
+    // Force eta_2 -> eta_1 when Dinc -> 0.0
+    eta_2 = lerp(eta_1, eta_2, smoothstep(0.0, 0.03, Dinc));
 
     // Compute dot products
     float NdotL = dot(inputData.normalWS, lightDirectionWS);
@@ -191,28 +202,33 @@ half3 iridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, half3 
     half3 halfDir = SafeNormalize(lightDirectionWS + inputData.viewDirectionWS);
     float NdotH = dot(inputData.normalWS, halfDir);
     float cosTheta1 = dot(halfDir, lightDirectionWS);
-    float cosTheta2 = sqrt(1.0 - sqr(1.0 / eta_2) * (1 - sqr(cosTheta1)));
+
+    float sinTheta2Sq = sqr(eta_1 / eta_2) * (1.0 - sqr(cosTheta1));
+    float cosTheta2Sq = (1.0 - sinTheta2Sq);
+
+    float cosTheta2 = sqrt(1.0 - sqr(eta_1 / eta_2) * (1 - sqr(cosTheta1)));
 
     // First interface
     float2 R12, phi12;
-    fresnelDielectric(cosTheta1, 1.0, eta_2, R12, phi12);
+    fresnelDielectric(cosTheta1, eta_1, eta_2, R12, phi12);
     float2 R21 = R12;
     float2 T121 = float2(1.0, 1.0) - R12;
     float2 phi21 = float2(PI, PI) - phi12;
 
     // Second interface
     float2 R23, phi23;
-    fresnelConductor(cosTheta2, eta_2, eta3, kappa3, R23, phi23);
+    fresnelConductor(cosTheta2, eta_2, eta_3, kappa_3, R23, phi23);
 
     // Phase shift
-    float OPD = Dinc * cosTheta2;
+    // float OPD = Dinc * cosTheta2;
+    float OPD = 2 * eta_2 * brdfData.iridescenceThickness * cosTheta2;
     float2 phi2 = phi21 + phi23;
 
     // Compound terms
     float3 I = float3(0, 0, 0);
     float2 R123 = R12 * R23;
     float2 r123 = sqrt(R123);
-    float2 Rs = sqr(T121) * R23 / (1 - R123);
+    float2 Rs = sqr(T121) * R23 / (float2(1.0, 1.0) - R123);
 
     // Reflectance term for m=0 (DC term amplitude)
     float2 C0 = R12 + Rs;
@@ -231,9 +247,8 @@ half3 iridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, half3 
         I += depolColor(Cm.x * SmS, Cm.y * SmP);
     }
 
-    float3x3 mat = float3x3(2.3706743, -0.5138850, 0.0052982, -0.9000405, 1.4253036, -0.0146949, -0.4706338, 0.0885814, 1.0093968);
     // Convert back to RGB reflectance
-    I = clamp(mul(I, mat), float3(0.0, 0.0, 0.0), float3(1.0, 1.0, 1.0));
+    I = clamp(mul(I, XYZ_TO_RGB), float3(0.0, 0.0, 0.0), float3(1.0, 1.0, 1.0));
 
     return I;
 }
@@ -247,7 +262,7 @@ half3 DirectBDRFIridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputDa
     float3 halfDir = SafeNormalize(float3(lightDirectionWS) + float3(inputData.viewDirectionWS));
     float NdotH = dot(inputData.normalWS, halfDir);
 
-    half3 I = iridescence(brdfData, inputData, lightDirectionWS);
+    half3 I = Iridescence(brdfData, inputData, lightDirectionWS);
     // Microfacet BRDF formula
     float D = GGX(NdotH, brdfData.perceptualRoughness);
     float G = smithG_GGX(NdotL, NdotV, brdfData.perceptualRoughness);
@@ -314,19 +329,18 @@ half3 GlobalIlluminationAdvanced(BRDFDataAdvanced brdfData, InputDataAdvanced in
 {
     half3 reflectVector = reflect(-inputData.viewDirectionWS, inputData.normalWS);
 
-    half3 indirectDiffuse = inputData.bakedGI * occlusion * brdfData.diffuse;
-    half3 reflection = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, occlusion);
-    float surfaceReduction = 1.0 / (brdfData.roughness2 + 1.0);
+    half3 indirectDiffuse = inputData.bakedGI * occlusion;
+    half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, brdfData.perceptualRoughness, occlusion);
 
 #ifdef _IRIDESCENCE
-    half3 fresnelTerm = iridescence(brdfData, inputData, reflectVector);
+    half3 fresnelIridescent = Iridescence(brdfData, inputData, reflectVector);
+    return EnvironmentBRDFIridescence(brdfData, indirectDiffuse, indirectSpecular, fresnelIridescent);
+
 #else
     half fresnelTerm = Pow4(1.0 - saturate(dot(inputData.normalWS, inputData.viewDirectionWS)));
+    return EnvironmentBRDF(brdfData, indirectDiffuse, indirectSpecular, fresnelTerm);
+
 #endif
-
-    half3 indirectSpecular = surfaceReduction * reflection * lerp(brdfData.specular, brdfData.grazingTerm, fresnelTerm);
-
-    return indirectDiffuse + indirectSpecular;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,7 +351,8 @@ half3 LightingAdvanced(BRDFDataAdvanced brdfData, half3 lightColor, half3 lightD
 {
     half NdotL = saturate(dot(inputData.normalWS, lightDirectionWS));
     half3 radiance = lightColor * (lightAttenuation * NdotL);
-#if _IRIDESCENE
+
+#if _IRIDESCENCE
     return DirectBDRFIridescence(brdfData, inputData, lightDirectionWS) * radiance;
 #else
     return DirectBDRFAdvanced(brdfData, inputData, lightDirectionWS) * radiance;

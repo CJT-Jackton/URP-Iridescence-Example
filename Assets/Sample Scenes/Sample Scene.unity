@@ -704,6 +704,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 9bde919803c77e546942de0f1f48b097, type: 2}
+    - target: {fileID: 3300000, guid: 5b3c6541358e988469fc3922e6d35d99, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 6893610189024797672, guid: 8e2f43ac7ac49b74891073ee05c13467,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b3c6541358e988469fc3922e6d35d99, type: 3}
 --- !u!4 &947307142 stripped
@@ -895,12 +900,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 0cc3681e64c43b6429686ec88ffd0aad, type: 2}
+      objectReference: {fileID: 2100000, guid: 68594a4cf0c7730489b65203c85edef8, type: 2}
     - target: {fileID: 6043960529905004856, guid: 18c41c847b56a274dbec42e65e567a4b,
         type: 3}
       propertyPath: m_Materials.Array.data[2]
       value: 
-      objectReference: {fileID: 2100000, guid: 0cc3681e64c43b6429686ec88ffd0aad, type: 2}
+      objectReference: {fileID: 2100000, guid: 68594a4cf0c7730489b65203c85edef8, type: 2}
     - target: {fileID: 6043960529905004856, guid: 18c41c847b56a274dbec42e65e567a4b,
         type: 3}
       propertyPath: m_Materials.Array.data[3]
@@ -1127,12 +1132,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 615e0daf6cf8bfa44823411c43d4e11d, type: 2}
+      objectReference: {fileID: 2100000, guid: 775826be131996b4b8fd7f7329e7f5ae, type: 2}
     - target: {fileID: 6043960529905004856, guid: 18c41c847b56a274dbec42e65e567a4b,
         type: 3}
       propertyPath: m_Materials.Array.data[2]
       value: 
-      objectReference: {fileID: 2100000, guid: 615e0daf6cf8bfa44823411c43d4e11d, type: 2}
+      objectReference: {fileID: 2100000, guid: 775826be131996b4b8fd7f7329e7f5ae, type: 2}
     - target: {fileID: 6043960529905004856, guid: 18c41c847b56a274dbec42e65e567a4b,
         type: 3}
       propertyPath: m_Materials.Array.data[3]
