@@ -136,7 +136,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
     InputDataAdvanced inputData;
     InitializeInputData(input, surfaceData.normalTS, inputData);
 
-    half4 color = LightweightFragmentAdvanced(inputData, surfaceData);
+    half4 color = UniversalFragmentAdvanced(inputData, surfaceData);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     return color;

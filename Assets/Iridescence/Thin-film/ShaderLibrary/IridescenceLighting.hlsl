@@ -69,20 +69,23 @@ inline void InitializeBRDFDataAdvanced(SurfaceDataAdvanced surfaceData, out BRDF
     half oneMinusReflectivity = 1.0 - reflectivity;
 
     outBRDFData.diffuse = surfaceData.albedo * (half3(1.0h, 1.0h, 1.0h) - surfaceData.specular);
-    half3 f0 = surfaceData.specular;
+    outBRDFData.specular = surfaceData.specular;
 #else
 
     half oneMinusReflectivity = OneMinusReflectivityMetallic(surfaceData.metallic);
     half reflectivity = 1.0 - oneMinusReflectivity;
 
     outBRDFData.diffuse = surfaceData.albedo * oneMinusReflectivity;
-    half3 f0 = kDieletricSpec.rgb;
+    outBRDFData.specular = lerp(kDieletricSpec.rgb, surfaceData.albedo, surfaceData.metallic);
 #endif
 
     outBRDFData.grazingTerm = saturate(surfaceData.smoothness + reflectivity);
     outBRDFData.perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surfaceData.smoothness);
-    outBRDFData.roughness = PerceptualRoughnessToRoughness(outBRDFData.perceptualRoughness);
+    outBRDFData.roughness = max(PerceptualRoughnessToRoughness(outBRDFData.perceptualRoughness), HALF_MIN);
     outBRDFData.roughness2 = outBRDFData.roughness * outBRDFData.roughness;
+
+    outBRDFData.normalizationTerm = outBRDFData.roughness * 4.0h + 2.0h;
+    outBRDFData.roughness2MinusOne = outBRDFData.roughness2 - 1.0h;
 
 #ifdef _IRIDESCENCE
     outBRDFData.iridescenceThickness = surfaceData.iridescenceThickness;
@@ -90,15 +93,6 @@ inline void InitializeBRDFDataAdvanced(SurfaceDataAdvanced surfaceData, out BRDF
     outBRDFData.iridescenceEta_3 = surfaceData.iridescenceEta_3;
     outBRDFData.iridescenceKappa_3 = surfaceData.iridescenceKappa_3;
 #endif
-
-#ifdef _SPECULAR_SETUP
-    outBRDFData.specular = f0;
-#else
-    outBRDFData.specular = lerp(f0, surfaceData.albedo, surfaceData.metallic);
-#endif
-
-    outBRDFData.normalizationTerm = outBRDFData.roughness * 4.0h + 2.0h;
-    outBRDFData.roughness2MinusOne = outBRDFData.roughness2 - 1.0h;
 
 #ifdef _ALPHAPREMULTIPLY_ON
     outBRDFData.diffuse *= surfaceData.alpha;
@@ -197,7 +191,7 @@ half3 Iridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, half3 
     float NdotL = dot(inputData.normalWS, lightDirectionWS);
     float NdotV = dot(inputData.normalWS, inputData.viewDirectionWS);
 
-    if (NdotL < 0 || NdotV < 0) return half3(0, 0, 0);
+    //if (NdotL < 0 || NdotV < 0) return half3(0, 0, 0);
 
     half3 halfDir = SafeNormalize(lightDirectionWS + inputData.viewDirectionWS);
     float NdotH = dot(inputData.normalWS, halfDir);
@@ -368,7 +362,7 @@ half3 LightingAdvanced(BRDFDataAdvanced brdfData, Light light, InputDataAdvanced
 //                      Fragment Functions                                   //
 //       Used by ShaderGraph and others builtin renderers                    //
 ///////////////////////////////////////////////////////////////////////////////
-half4 LightweightFragmentAdvanced(InputDataAdvanced inputData, SurfaceDataAdvanced surfaceData)
+half4 UniversalFragmentAdvanced(InputDataAdvanced inputData, SurfaceDataAdvanced surfaceData)
 {
     BRDFDataAdvanced brdfData;
     InitializeBRDFDataAdvanced(surfaceData, brdfData);
@@ -393,6 +387,6 @@ half4 LightweightFragmentAdvanced(InputDataAdvanced inputData, SurfaceDataAdvanc
 #endif
 
     color += surfaceData.emission;
-    return half4(color, surfaceData.alpha);;
+    return half4(color, surfaceData.alpha);
 }
 #endif // UNIVERSAL_LIGHTING_IRIDESCENCE_INCLUDED
