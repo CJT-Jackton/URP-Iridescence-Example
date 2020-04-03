@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Bismuth_mat
+  m_Name: Copper_mat
   m_Shader: {fileID: 4800000, guid: 8f855a8618631ca4d9e8266e50c6267f, type: 3}
   m_ShaderKeywords: _IRIDESCENCE
   m_LightmapFlags: 4
@@ -73,15 +73,15 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _IridescenceThickness: 0.14
-    - _IridescneceEta_2: 2.5
-    - _IridescneceEta_3: 0.65661
-    - _IridescneceKappa_3: 2.0886
+    - _IridescenceThickness: 0.1
+    - _IridescneceEta_2: 1.3929
+    - _IridescneceEta_3: 1.241
+    - _IridescneceKappa_3: 3.2552
     - _Metallic: 1
     - _OcclusionStrength: 0.03
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.841
+    - _Smoothness: 0.889
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -89,7 +89,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5, g: 0.35455713, b: 0.1768868, a: 1}
+    - _BaseColor: {r: 0.955, g: 0.637, b: 0.538, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

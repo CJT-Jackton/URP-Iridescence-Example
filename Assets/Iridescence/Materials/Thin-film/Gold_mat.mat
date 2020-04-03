@@ -73,15 +73,15 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _IridescenceThickness: 0.38
-    - _IridescneceEta_2: 1.744
-    - _IridescneceEta_3: 0.33523
-    - _IridescneceKappa_3: 2.5524
+    - _IridescenceThickness: 0.32
+    - _IridescneceEta_2: 1.3929
+    - _IridescneceEta_3: 1.1002
+    - _IridescneceKappa_3: 2.5357
     - _Metallic: 1
     - _OcclusionStrength: 0.03
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.908
+    - _Smoothness: 0.884
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
