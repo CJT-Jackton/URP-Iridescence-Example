@@ -47,6 +47,7 @@ half _Metallic;
 half _BumpScale;
 half _OcclusionStrength;
 half _IridescenceThickness;
+half4 _IridescenceThicknessRemap;
 half _IridescneceEta_2;
 half _IridescneceEta_3;
 half _IridescneceKappa_3;
@@ -74,9 +75,10 @@ UNITY_DOTS_INSTANCING_END(MaterialPropertyMetadata)
 #define _OcclusionStrength  UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO(float  , Metadata__OcclusionStrength)
 #endif
 
-TEXTURE2D(_OcclusionMap);       SAMPLER(sampler_OcclusionMap);
-TEXTURE2D(_MetallicGlossMap);   SAMPLER(sampler_MetallicGlossMap);
-TEXTURE2D(_SpecGlossMap);       SAMPLER(sampler_SpecGlossMap);
+TEXTURE2D(_OcclusionMap);                  SAMPLER(sampler_OcclusionMap);
+TEXTURE2D(_MetallicGlossMap);              SAMPLER(sampler_MetallicGlossMap);
+TEXTURE2D(_SpecGlossMap);                  SAMPLER(sampler_SpecGlossMap);
+TEXTURE2D(_IridescenceThicknessMap);       SAMPLER(sampler_IridescenceThicknessMap);
 
 #ifdef _SPECULAR_SETUP
 #define SAMPLE_METALLICSPECULAR(uv) SAMPLE_TEXTURE2D(_SpecGlossMap, sampler_SpecGlossMap, uv)
@@ -127,6 +129,20 @@ half SampleOcclusion(float2 uv)
 #endif
 }
 
+half SampleIridescenceThickness(float2 uv)
+{
+    half iridescenceThickness;
+
+#if _IRIDESCENCE_THICKNESSMAP
+    iridescenceThickness = SAMPLE_TEXTURE2D(_IridescenceThicknessMap, sampler_IridescenceThicknessMap, uv).r;
+    iridescenceThickness = _IridescenceThicknessRemap.x + iridescenceThickness * (_IridescenceThicknessRemap.y - _IridescenceThicknessRemap.x);
+#else
+    iridescenceThickness = _IridescenceThickness;
+#endif
+
+    return iridescenceThickness;
+}
+
 inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceDataAdvanced outSurfaceData)
 {
     half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
@@ -149,7 +165,7 @@ inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceDataAdvanced 
     outSurfaceData.emission = SampleEmission(uv, _EmissionColor.rgb, TEXTURE2D_ARGS(_EmissionMap, sampler_EmissionMap));
 
 #if _IRIDESCENCE
-    outSurfaceData.iridescenceThickness = _IridescenceThickness;
+    outSurfaceData.iridescenceThickness = SampleIridescenceThickness(uv);
     outSurfaceData.iridescenceEta_2 = _IridescneceEta_2;
     outSurfaceData.iridescenceEta_3 = _IridescneceEta_3;
     outSurfaceData.iridescenceKappa_3 = _IridescneceKappa_3;

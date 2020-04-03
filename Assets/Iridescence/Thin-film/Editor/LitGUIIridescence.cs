@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Scripting.APIUpdating;
 
@@ -55,6 +54,12 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             public static GUIContent iridescenceThicknessText = new GUIContent("Thickness",
                 "Thickness of the thin-film. Unit is micrometer, mean 0.5 is 500nm.");
 
+            public static GUIContent iridescenceThicknessMapText = new GUIContent("Thickness Map",
+                "Specifies the Iridescence Thickness map (R) for this Material.");
+
+            public static GUIContent iridescenceThicknessRemapText = new GUIContent("Remap",
+                "Iridescence Thickness remap");
+
             public static GUIContent iridescenceEta2Text = new GUIContent("Thin-film IOR (η₂)",
                 "Index of refraction of the thin-film.");
 
@@ -88,6 +93,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
 
             public MaterialProperty enableIridescence;
             public MaterialProperty iridescenceThickness;
+            public MaterialProperty iridescenceThicknessMap;
+            public MaterialProperty iridescenceThicknessRemap;
             public MaterialProperty iridescenceEta2;
             public MaterialProperty iridescenceEta3;
             public MaterialProperty iridescenceKappa3;
@@ -113,6 +120,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
                 // Iridescence Props
                 enableIridescence = BaseShaderGUI.FindProperty("_EnableIridescence", properties, false);
                 iridescenceThickness = BaseShaderGUI.FindProperty("_IridescenceThickness", properties, false);
+                iridescenceThicknessMap = BaseShaderGUI.FindProperty("_IridescenceThicknessMap", properties, false);
+                iridescenceThicknessRemap = BaseShaderGUI.FindProperty("_IridescenceThicknessRemap", properties, false);
                 iridescenceEta2 = BaseShaderGUI.FindProperty("_IridescneceEta_2", properties, false);
                 iridescenceEta3 = BaseShaderGUI.FindProperty("_IridescneceEta_3", properties, false);
                 iridescenceKappa3 = BaseShaderGUI.FindProperty("_IridescneceKappa_3", properties, false);
@@ -136,10 +145,41 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
         public static void DoIridescence(LitProperties properties, MaterialEditor materialEditor, Material material)
         {
             materialEditor.ShaderProperty(properties.enableIridescence, Styles.enableIridescenceText);
-            if(properties.enableIridescence.floatValue ==1.0)
+            if(properties.enableIridescence.floatValue == 1.0)
             {
                 EditorGUI.indentLevel++;
-                materialEditor.ShaderProperty(properties.iridescenceThickness, Styles.iridescenceThicknessText);
+                bool hasThicknessMap = properties.iridescenceThicknessMap.textureValue != null;
+                materialEditor.TexturePropertySingleLine(hasThicknessMap ? Styles.iridescenceThicknessMapText : Styles.iridescenceThicknessText,
+                    properties.iridescenceThicknessMap,
+                    hasThicknessMap ? null : properties.iridescenceThickness);
+
+                if (hasThicknessMap)
+                {
+                    GUIStyle style = new GUIStyle("textField");
+                    style.margin = new RectOffset(0, 0, 0, 0);
+                    style.border = new RectOffset(0, 0, 0, 0);
+                    style.fixedWidth = 50;
+
+                    GUIStyle style1 = new GUIStyle("MinMaxHorizontalSliderThumb");
+                    style1.margin = new RectOffset(0, 0, 0, 0);
+
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUI.BeginChangeCheck();
+
+                    Vector2 remap = properties.iridescenceThicknessRemap.vectorValue;
+                    remap.x = EditorGUILayout.FloatField(remap.x, style);
+                    EditorGUILayout.MinMaxSlider(ref remap.x, ref remap.y, 0.0f, 2.5f);
+                    remap.y = EditorGUILayout.FloatField(remap.y, GUILayout.Width(80));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        remap.x = remap.x > remap.y ? remap.y : remap.x;
+                        properties.iridescenceThicknessRemap.vectorValue = remap;
+                    }
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUI.indentLevel--;
+                }
+
                 materialEditor.ShaderProperty(properties.iridescenceEta2, Styles.iridescenceEta2Text);
                 materialEditor.ShaderProperty(properties.iridescenceEta3, Styles.iridescenceEta3Text);
                 materialEditor.ShaderProperty(properties.iridescenceKappa3, Styles.iridescenceKappa3Text);
@@ -255,8 +295,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
 
             if (material.HasProperty("_EnableIridescence"))
                 CoreUtils.SetKeyword(material, "_IRIDESCENCE", material.GetFloat("_EnableIridescence") == 1.0f);
-            if (material.HasProperty("_ClearCoatMap"))
-                CoreUtils.SetKeyword(material, "_CLEARCOATMAP", material.GetTexture("_ClearCoatMap"));
+            if (material.HasProperty("_IridescenceThicknessMap"))
+                CoreUtils.SetKeyword(material, "_IRIDESCENCE_THICKNESSMAP", material.GetTexture("_IridescenceThicknessMap"));
         }
     }
 }
