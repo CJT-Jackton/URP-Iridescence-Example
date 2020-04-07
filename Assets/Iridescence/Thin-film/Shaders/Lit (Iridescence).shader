@@ -35,7 +35,7 @@
         [ToggleOff] _EnableIridescence("Enable Iridescence", Float) = 1.0
         _IridescenceThickness("Iridescence Thickness", Range(0.0, 2.5)) = 0.5
         _IridescenceThicknessMap("Iridescence Thickness Map", 2D) = "white" {}
-        _IridescenceThicknessRemap("Iridescence Thickness Remap", Vector) = (0.0, 1.0, 0.0, 0.0)
+        [MinMax(0, 2.5)] _IridescenceThicknessRemap("Iridescence Thickness Remap", Vector) = (0.3, 1.8, 0.0, 0.0)
         _IridescneceEta_2("Iridescence Eta 2", Range(0.0, 5.0)) = 1.33
         _IridescneceEta_3("Iridescence Eta 3", Range(0.0, 5.0)) = 1.85
         _IridescneceKappa_3("Iridescence Kappa 3", Range(0.0, 5.0)) = 0.0

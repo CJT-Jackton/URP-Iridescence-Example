@@ -139,52 +139,30 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
                     properties.occlusionMap.textureValue != null ? properties.occlusionStrength : null);
             }
 
-            DoIridescence(properties, materialEditor, material);
+            DoIridescence(properties, materialEditor);
         }
 
-        public static void DoIridescence(LitProperties properties, MaterialEditor materialEditor, Material material)
+        public static void DoIridescence(LitProperties properties, MaterialEditor materialEditor)
         {
             materialEditor.ShaderProperty(properties.enableIridescence, Styles.enableIridescenceText);
-            if(properties.enableIridescence.floatValue == 1.0)
-            {
-                EditorGUI.indentLevel++;
-                bool hasThicknessMap = properties.iridescenceThicknessMap.textureValue != null;
-                materialEditor.TexturePropertySingleLine(hasThicknessMap ? Styles.iridescenceThicknessMapText : Styles.iridescenceThicknessText,
-                    properties.iridescenceThicknessMap,
-                    hasThicknessMap ? null : properties.iridescenceThickness);
 
-                if (hasThicknessMap)
-                {
-                    GUIStyle style = new GUIStyle("textField");
-                    style.margin = new RectOffset(0, 0, 0, 0);
-                    style.border = new RectOffset(0, 0, 0, 0);
-                    style.fixedWidth = 50;
+            bool iridescence = properties.enableIridescence.floatValue == 1.0;
+            bool hasThicknessMap = properties.iridescenceThicknessMap.textureValue != null;
 
-                    GUIStyle style1 = new GUIStyle("MinMaxHorizontalSliderThumb");
-                    style1.margin = new RectOffset(0, 0, 0, 0);
+            EditorGUI.BeginDisabledGroup(!iridescence);
 
-                    EditorGUI.indentLevel++;
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUI.BeginChangeCheck();
+            materialEditor.TexturePropertySingleLine(
+                hasThicknessMap ? Styles.iridescenceThicknessMapText : Styles.iridescenceThicknessText,
+                properties.iridescenceThicknessMap,
+                hasThicknessMap ? properties.iridescenceThicknessRemap : properties.iridescenceThickness);
 
-                    Vector2 remap = properties.iridescenceThicknessRemap.vectorValue;
-                    remap.x = EditorGUILayout.FloatField(remap.x, style);
-                    EditorGUILayout.MinMaxSlider(ref remap.x, ref remap.y, 0.0f, 2.5f);
-                    remap.y = EditorGUILayout.FloatField(remap.y, GUILayout.Width(80));
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        remap.x = remap.x > remap.y ? remap.y : remap.x;
-                        properties.iridescenceThicknessRemap.vectorValue = remap;
-                    }
-                    EditorGUILayout.EndHorizontal();
-                    EditorGUI.indentLevel--;
-                }
+            EditorGUI.indentLevel++;
+            materialEditor.ShaderProperty(properties.iridescenceEta2, Styles.iridescenceEta2Text);
+            materialEditor.ShaderProperty(properties.iridescenceEta3, Styles.iridescenceEta3Text);
+            materialEditor.ShaderProperty(properties.iridescenceKappa3, Styles.iridescenceKappa3Text);
+            EditorGUI.indentLevel--;
 
-                materialEditor.ShaderProperty(properties.iridescenceEta2, Styles.iridescenceEta2Text);
-                materialEditor.ShaderProperty(properties.iridescenceEta3, Styles.iridescenceEta3Text);
-                materialEditor.ShaderProperty(properties.iridescenceKappa3, Styles.iridescenceKappa3Text);
-                EditorGUI.indentLevel--;
-            }
+            EditorGUI.EndDisabledGroup();
         }
 
         public static void DoMetallicSpecularArea(LitProperties properties, MaterialEditor materialEditor, Material material)
