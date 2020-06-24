@@ -21,12 +21,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SoapBubble_mat
-  m_Shader: {fileID: 4800000, guid: 8f855a8618631ca4d9e8266e50c6267f, type: 3}
+  m_Shader: {fileID: 4800000, guid: b5583d07f471cf844bce227491fca6b3, type: 3}
   m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _IRIDESCENCE _IRIDESCENCE_THICKNESSMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: 3050
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
@@ -52,7 +52,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 2, y: 2.75}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -78,9 +78,13 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Iridescence: 1
     - _IridescenceThickness: 0.27
+    - _IridescneceEta2: 1.36
+    - _IridescneceEta3: 1
     - _IridescneceEta_2: 1.36
     - _IridescneceEta_3: 1
+    - _IridescneceKappa3: 0
     - _IridescneceKappa_3: 0
     - _Metallic: 0
     - _OcclusionStrength: 1

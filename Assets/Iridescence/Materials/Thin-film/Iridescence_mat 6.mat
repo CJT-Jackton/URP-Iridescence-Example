@@ -21,12 +21,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Iridescence_mat 6
-  m_Shader: {fileID: 4800000, guid: 8f855a8618631ca4d9e8266e50c6267f, type: 3}
+  m_Shader: {fileID: 4800000, guid: b5583d07f471cf844bce227491fca6b3, type: 3}
   m_ShaderKeywords: _IRIDESCENCE _IRIDESCENCE_THICKNESSMAP
   m_LightmapFlags: 6
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2050
+  m_CustomRenderQueue: 2000
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
@@ -51,7 +51,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -69,7 +69,7 @@ Material:
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 0.04
-    - _Cull: 2
+    - _Cull: 0
     - _Cutoff: 0.5
     - _DstBlend: 0
     - _EnableIridescence: 1
@@ -77,9 +77,13 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Iridescence: 1
     - _IridescenceThickness: 0.4
+    - _IridescneceEta2: 2.9
+    - _IridescneceEta3: 2.7
     - _IridescneceEta_2: 1.33
     - _IridescneceEta_3: 1.85
+    - _IridescneceKappa3: 2.8
     - _IridescneceKappa_3: 1.02
     - _Metallic: 1
     - _OcclusionStrength: 0.03
@@ -96,5 +100,5 @@ Material:
     - _BaseColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 1}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _IridescenceThicknessRemap: {r: 0.12879962, g: 0.5418762, b: 0, a: 0}
+    - _IridescenceThicknessRemap: {r: 0.000000029802322, g: 0.07819772, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

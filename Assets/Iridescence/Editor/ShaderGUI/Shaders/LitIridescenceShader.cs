@@ -6,13 +6,15 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
     internal class LitIridescenceShader : BaseShaderGUI
     {
         // Properties
-        private LitGUIIridescence.LitProperties litProperties;
+        private LitGUI.LitProperties litProperties;
+        private IridescenceGUI.IridescenceProperties iridescenceProperties;
 
         // collect properties from the material properties
         public override void FindProperties(MaterialProperty[] properties)
         {
             base.FindProperties(properties);
-            litProperties = new LitGUIIridescence.LitProperties(properties);
+            litProperties = new LitGUI.LitProperties(properties);
+            iridescenceProperties = new IridescenceGUI.IridescenceProperties(properties);
         }
 
         // material changed check
@@ -21,7 +23,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             if (material == null)
                 throw new ArgumentNullException("material");
 
-            SetMaterialKeywords(material, LitGUIIridescence.SetMaterialKeywords);
+            SetMaterialKeywords(material, LitGUI.SetMaterialKeywords, IridescenceGUI.SetMaterialKeywords);
         }
 
         // material main surface options
@@ -37,7 +39,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             EditorGUI.BeginChangeCheck();
             if (litProperties.workflowMode != null)
             {
-                DoPopup(LitGUIIridescence.Styles.workflowModeText, litProperties.workflowMode, Enum.GetNames(typeof(LitGUIIridescence.WorkflowMode)));
+                DoPopup(LitGUI.Styles.workflowModeText, litProperties.workflowMode, Enum.GetNames(typeof(LitGUI.WorkflowMode)));
             }
             if (EditorGUI.EndChangeCheck())
             {
@@ -51,7 +53,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
         public override void DrawSurfaceInputs(Material material)
         {
             base.DrawSurfaceInputs(material);
-            LitGUIIridescence.Inputs(litProperties, materialEditor, material);
+            LitGUI.Inputs(litProperties, materialEditor, material);
+            IridescenceGUI.DoIridescenceArea(iridescenceProperties, materialEditor);
             DrawEmissionProperties(material, true);
             DrawTileOffset(materialEditor, baseMapProp);
         }
@@ -63,8 +66,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             {
                 EditorGUI.BeginChangeCheck();
                 {
-                    materialEditor.ShaderProperty(litProperties.highlights, LitGUIIridescence.Styles.highlightsText);
-                    materialEditor.ShaderProperty(litProperties.reflections, LitGUIIridescence.Styles.reflectionsText);
+                    materialEditor.ShaderProperty(litProperties.highlights, LitGUI.Styles.highlightsText);
+                    materialEditor.ShaderProperty(litProperties.reflections, LitGUI.Styles.reflectionsText);
                     EditorGUI.BeginChangeCheck();
                 }
             }
@@ -111,14 +114,14 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
 
             if (oldShader.name.Equals("Standard (Specular setup)"))
             {
-                material.SetFloat("_WorkflowMode", (float)LitGUIIridescence.WorkflowMode.Specular);
+                material.SetFloat("_WorkflowMode", (float)LitGUI.WorkflowMode.Specular);
                 Texture texture = material.GetTexture("_SpecGlossMap");
                 if (texture != null)
                     material.SetTexture("_MetallicSpecGlossMap", texture);
             }
             else
             {
-                material.SetFloat("_WorkflowMode", (float)LitGUIIridescence.WorkflowMode.Metallic);
+                material.SetFloat("_WorkflowMode", (float)LitGUI.WorkflowMode.Metallic);
                 Texture texture = material.GetTexture("_MetallicGlossMap");
                 if (texture != null)
                     material.SetTexture("_MetallicSpecGlossMap", texture);

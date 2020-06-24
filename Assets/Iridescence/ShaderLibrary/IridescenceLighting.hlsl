@@ -56,9 +56,9 @@ struct BRDFDataAdvanced
 
 #ifdef _IRIDESCENCE
     half iridescenceThickness;
-    half iridescenceEta_2;
-    half iridescenceEta_3;
-    half iridescenceKappa_3;
+    half iridescenceEta2;
+    half iridescenceEta3;
+    half iridescenceKappa3;
 #endif
 };
 
@@ -89,9 +89,9 @@ inline void InitializeBRDFDataAdvanced(SurfaceDataAdvanced surfaceData, out BRDF
 
 #ifdef _IRIDESCENCE
     outBRDFData.iridescenceThickness = surfaceData.iridescenceThickness;
-    outBRDFData.iridescenceEta_2 = surfaceData.iridescenceEta_2;
-    outBRDFData.iridescenceEta_3 = surfaceData.iridescenceEta_3;
-    outBRDFData.iridescenceKappa_3 = surfaceData.iridescenceKappa_3;
+    outBRDFData.iridescenceEta2 = surfaceData.iridescenceEta2;
+    outBRDFData.iridescenceEta3 = surfaceData.iridescenceEta3;
+    outBRDFData.iridescenceKappa3 = surfaceData.iridescenceKappa3;
 #endif
 
 #ifdef _ALPHAPREMULTIPLY_ON
@@ -174,12 +174,12 @@ half3 EnvironmentBRDFIridescence(BRDFDataAdvanced brdfData, half3 indirectDiffus
 #ifdef _IRIDESCENCE
 // Evaluate the reflectance for a thin-film layer on top of a dielectric medum
 // Based on the paper [LAURENT 2017] A Practical Extension to Microfacet Theory for the Modeling of Varying Iridescence
-half3 Iridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, float cosTheta1)
+half3 ThinFilmIridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputData, float cosTheta1)
 {
     float eta_1 = 1.0; // Air on top, no coat.
-    float eta_2 = brdfData.iridescenceEta_2;
-    float eta_3 = brdfData.iridescenceEta_3;
-    float kappa_3 = brdfData.iridescenceKappa_3;
+    float eta_2 = brdfData.iridescenceEta2;
+    float eta_3 = brdfData.iridescenceEta3;
+    float kappa_3 = brdfData.iridescenceKappa3;
 
     // iridescenceThickness unit is micrometer for this equation here. Mean 0.5 is 500nm.
     float Dinc = 2 * eta_2 * brdfData.iridescenceThickness;
@@ -243,7 +243,7 @@ half3 DirectBDRFIridescence(BRDFDataAdvanced brdfData, InputDataAdvanced inputDa
     float NdotH = dot(inputData.normalWS, halfDir);
     float cosTheta1 = dot(halfDir, float3(lightDirectionWS));
 
-    half3 I = Iridescence(brdfData, inputData, cosTheta1);
+    half3 I = ThinFilmIridescence(brdfData, inputData, cosTheta1);
     // Microfacet BRDF formula
     float D = GGX(NdotH, brdfData.perceptualRoughness);
     float G = smithG_GGX(NdotL, NdotV, brdfData.perceptualRoughness);
@@ -317,7 +317,7 @@ half3 GlobalIlluminationAdvanced(BRDFDataAdvanced brdfData, InputDataAdvanced in
     float3 halfDir = SafeNormalize(float3(reflectVector) + float3(inputData.viewDirectionWS));
     float cosTheta1 = dot(halfDir, float3(reflectVector));
 
-    half3 fresnelIridescent = Iridescence(brdfData, inputData, cosTheta1);
+    half3 fresnelIridescent = ThinFilmIridescence(brdfData, inputData, cosTheta1);
 
     return EnvironmentBRDFIridescence(brdfData, indirectDiffuse, indirectSpecular, fresnelIridescent);
 
